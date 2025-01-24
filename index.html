@@ -131,12 +131,22 @@
         .list-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
             padding: 10px;
             background: #f8f9fa;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             font-size: 14px;
+        }
+
+        .list-item input {
+            width: 60px;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #dfe6e9;
+            border-radius: 5px;
         }
 
         .list-item button {
@@ -156,34 +166,12 @@
     </style>
 </head>
 <body>
-    <!-- Tela de Registro -->
-    <div class="container hidden" id="registerPage">
-        <h1>Registrar</h1>
-        <input type="text" id="registerUsername" placeholder="Usuário">
-        <input type="password" id="registerPassword" placeholder="Senha">
-        <button onclick="registerUser()">Cadastrar</button>
-        <div class="link">
-            <p>Já tem uma conta? <a href="#" onclick="showLoginPage()">Login</a></p>
-        </div>
-    </div>
-
     <!-- Tela de Login -->
     <div class="container" id="loginPage">
         <h1>Login</h1>
         <input type="text" id="loginUsername" placeholder="Usuário">
         <input type="password" id="loginPassword" placeholder="Senha">
         <button onclick="loginUser()">Logar</button>
-        <div class="link">
-            <p>Não tem uma conta? <a href="#" onclick="showRegisterPage()">Cadastrar</a></p>
-        </div>
-    </div>
-
-    <!-- Tela Principal -->
-    <div class="container hidden" id="mainPage">
-        <h1>Bem-vindo(a), <span id="currentUser"></span>!</h1>
-        <p class="balance">Saldo: <span id="coinBalance">0</span> moedas</p>
-        <button onclick="addTikTokLink()">Adicionar Link TikTok</button>
-        <button onclick="watchTikTokVideo()">Assistir Vídeo TikTok</button>
     </div>
 
     <!-- Tela do Administrador -->
@@ -192,44 +180,22 @@
         <div class="admin-container">
             <h2>Usuários</h2>
             <div id="userList"></div>
-            <h2>Links</h2>
-            <div id="linkList"></div>
         </div>
         <button onclick="logout()">Sair</button>
     </div>
 
-    <!-- Botão de Deslogar (aparecendo quando o usuário estiver logado) -->
     <button id="logoutButton" class="hidden" onclick="logout()">Deslogar</button>
 
     <script>
-        const ADMIN_USERNAME = "Danilo";
-        const ADMIN_PASSWORD = "Danilo@123";
+        const ADMIN_USERNAME = "admin";
+        const ADMIN_PASSWORD = "1234";
 
-        let users = JSON.parse(localStorage.getItem('users')) || {};
-        let links = JSON.parse(localStorage.getItem('links')) || [];
-        let currentUser = localStorage.getItem('currentUser') || null;
+        let users = {
+            "user1": { password: "123", coins: 50 },
+            "user2": { password: "123", coins: 30 },
+        };
 
-        function saveDataToStorage(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
-        }
-
-        function registerUser() {
-            const username = document.getElementById('registerUsername').value;
-            const password = document.getElementById('registerPassword').value;
-
-            if (username && password) {
-                if (users[username]) {
-                    alert('Usuário já registrado!');
-                } else {
-                    users[username] = { password, coins: 50 };
-                    saveDataToStorage('users', users);
-                    alert('Usuário registrado com sucesso!');
-                    showLoginPage();
-                }
-            } else {
-                alert('Preencha todos os campos.');
-            }
-        }
+        let currentUser = null;
 
         function loginUser() {
             const username = document.getElementById('loginUsername').value;
@@ -239,123 +205,46 @@
                 showAdminPage();
             } else if (users[username] && users[username].password === password) {
                 currentUser = username;
-                localStorage.setItem('currentUser', username);
-                showMainPage();
+                alert(`Bem-vindo, ${username}!`);
             } else {
                 alert('Usuário ou senha incorretos.');
             }
         }
 
-        function addTikTokLink() {
-            if (users[currentUser].coins >= 50) {
-                const link = prompt("Insira o link do TikTok:");
-                if (link) {
-                    links.push({ link, allowedUsers: Object.keys(users) });
-                    users[currentUser].coins -= 50;
-                    saveDataToStorage('users', users);
-                    saveDataToStorage('links', links);
-                    alert("Link adicionado com sucesso!");
-                } else {
-                    alert("Nenhum link foi adicionado.");
-                }
-            } else {
-                alert("Você não tem moedas suficientes.");
-            }
-        }
-
-        function watchTikTokVideo() {
-            const availableLinks = links.filter(link => link.allowedUsers.includes(currentUser));
-            if (availableLinks.length > 0) {
-                const randomLink = availableLinks[0];
-                window.open(randomLink.link, "_blank");
-                randomLink.allowedUsers = randomLink.allowedUsers.filter(user => user !== currentUser);
-                users[currentUser].coins += 10;
-                saveDataToStorage('users', users);
-                saveDataToStorage('links', links);
-            } else {
-                alert("Nenhum link disponível.");
-            }
-        }
-
         function showAdminPage() {
-            document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.remove('hidden');
-            renderAdminData();
+            renderUserList();
         }
 
-        function renderAdminData() {
+        function renderUserList() {
             const userList = document.getElementById('userList');
             userList.innerHTML = "";
             Object.keys(users).forEach(username => {
                 const div = document.createElement('div');
                 div.className = "list-item";
-                div.innerHTML = `${username} (Moedas: ${users[username].coins}) 
-                    <button onclick="deleteUser('${username}')">Excluir</button>`;
+                div.innerHTML = `
+                    ${username} 
+                    (Moedas: <input type="number" value="${users[username].coins}" onchange="updateCoins('${username}', this.value)">)
+                    <button onclick="deleteUser('${username}')">Excluir</button>
+                `;
                 userList.appendChild(div);
             });
+        }
 
-            const linkList = document.getElementById('linkList');
-            linkList.innerHTML = "";
-            links.forEach((link, index) => {
-                const div = document.createElement('div');
-                div.className = "list-item";
-                div.innerHTML = `${link.link} 
-                    <button onclick="deleteLink(${index})">Excluir</button>`;
-                linkList.appendChild(div);
-            });
+        function updateCoins(username, newCoins) {
+            users[username].coins = parseInt(newCoins);
+            alert(`Moedas de ${username} atualizadas para ${newCoins}`);
         }
 
         function deleteUser(username) {
             delete users[username];
-            saveDataToStorage('users', users);
-            renderAdminData();
-        }
-
-        function deleteLink(index) {
-            links.splice(index, 1);
-            saveDataToStorage('links', links);
-            renderAdminData();
+            renderUserList();
         }
 
         function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            showLoginPage();
-        }
-
-        function showLoginPage() {
-            document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
-        }
-
-        function showRegisterPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
-        }
-
-        function showMainPage() {
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('currentUser').innerText = currentUser;
-            document.getElementById('coinBalance').innerText = users[currentUser].coins;
-            document.getElementById('logoutButton').classList.remove('hidden');
-        }
-
-        // Verifica se o usuário já está logado ao recarregar a página
-        if (currentUser) {
-            showMainPage();
-        } else {
-            showLoginPage();
         }
     </script>
 </body>
