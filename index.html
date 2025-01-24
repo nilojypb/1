@@ -281,10 +281,15 @@
         function watchTikTokVideo() {
             if (links.length > 0) {
                 const randomLink = links[Math.floor(Math.random() * links.length)];
-                alert(`Assistindo vídeo: ${randomLink}`);
-                users[currentUser].coins += 10; // Adiciona 10 moedas ao saldo
-                saveDataToStorage('users', users);
-                updateCoinBalance();
+                // Redireciona para o link do TikTok
+                window.open(randomLink, '_blank');
+                // Exibe a mensagem após retornar
+                setTimeout(() => {
+                    alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
+                    users[currentUser].coins += 10; // Adiciona 10 moedas ao saldo
+                    saveDataToStorage('users', users);
+                    updateCoinBalance();
+                }, 1000);
             } else {
                 alert('Não há links disponíveis.');
             }
