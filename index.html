@@ -153,17 +153,6 @@
         .list-item button:hover {
             background: #d63031;
         }
-
-        /* Estilo do campo para alterar moedas */
-        .change-coins {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-
-        .change-coins input {
-            width: 70%;
-        }
     </style>
 </head>
 <body>
@@ -206,11 +195,6 @@
             <h2>Links</h2>
             <div id="linkList"></div>
         </div>
-        <div class="change-coins">
-            <input type="text" id="usernameToChange" placeholder="Usuário">
-            <input type="number" id="coinsToChange" placeholder="Quantidade de moedas">
-            <button onclick="changeUserCoins()">Alterar Moedas</button>
-        </div>
         <button onclick="logout()">Sair</button>
     </div>
 
@@ -251,100 +235,123 @@
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                showAdminPage();
-            } else if (users[username] && users[username].password === password) {
+            if (users[username] && users[username].password === password) {
                 currentUser = username;
-                localStorage.setItem('currentUser', username);
+                localStorage.setItem('currentUser', currentUser);
+                alert('Login bem-sucedido!');
                 showMainPage();
+            } else if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                currentUser = 'Admin';
+                localStorage.setItem('currentUser', currentUser);
+                alert('Login como administrador bem-sucedido!');
+                showAdminPage();
             } else {
                 alert('Usuário ou senha incorretos.');
-            }
-        }
-
-        function addTikTokLink() {
-            if (users[currentUser].coins >= 50) {
-                const link = prompt("Insira o link do TikTok:");
-                if (link) {
-                    links.push(link);
-                    users[currentUser].coins -= 50; // Custa 50 moedas para adicionar um link
-                    saveDataToStorage('links', links);
-                    saveDataToStorage('users', users);
-                    alert('Link adicionado com sucesso! 50 moedas foram descontadas.');
-                    updateCoinBalance();
-                }
-            } else {
-                alert('Você não tem moedas suficientes.');
-            }
-        }
-
-        function watchTikTokVideo() {
-            if (links.length > 0) {
-                const randomLink = links[Math.floor(Math.random() * links.length)];
-                // Redireciona para o link do TikTok
-                window.open(randomLink, '_blank');
-                // Exibe a mensagem após retornar
-                setTimeout(() => {
-                    alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
-                    users[currentUser].coins += 10; // Adiciona 10 moedas ao saldo
-                    saveDataToStorage('users', users);
-                    updateCoinBalance();
-                }, 1000);
-            } else {
-                alert('Não há links disponíveis.');
-            }
-        }
-
-        function updateCoinBalance() {
-            document.getElementById('coinBalance').textContent = users[currentUser].coins;
-        }
-
-        function showLoginPage() {
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-        }
-
-        function showRegisterPage() {
-            document.getElementById('registerPage').classList.remove('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
-        }
-
-        function showMainPage() {
-            document.getElementById('currentUser').textContent = currentUser;
-            updateCoinBalance();
-            document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.remove('hidden');
-        }
-
-        function showAdminPage() {
-            document.getElementById('userList').innerHTML = Object.keys(users).map(user => `<div class="list-item">${user} - ${users[user].coins} moedas</div>`).join('');
-            document.getElementById('linkList').innerHTML = links.map(link => `<div class="list-item">${link}</div>`).join('');
-            document.getElementById('adminPage').classList.remove('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
-        }
-
-        function changeUserCoins() {
-            const username = document.getElementById('usernameToChange').value;
-            const coins = parseInt(document.getElementById('coinsToChange').value, 10);
-
-            if (users[username] && !isNaN(coins)) {
-                users[username].coins += coins;
-                saveDataToStorage('users', users);
-                alert(`Moedas alteradas para ${username}.`);
-                showAdminPage();
-            } else {
-                alert('Usuário não encontrado ou valor inválido.');
             }
         }
 
         function logout() {
             currentUser = null;
             localStorage.removeItem('currentUser');
+            showLoginPage();
+        }
+
+        function showLoginPage() {
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('logoutButton').classList.add('hidden');
+        }
+
+        function showRegisterPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+        }
+
+        function showMainPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('logoutButton').classList.remove('hidden');
+            document.getElementById('currentUser').innerText = currentUser;
+            updateCoinBalance();
+        }
+
+        function showAdminPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.remove('hidden');
+            document.getElementById('logoutButton').classList.remove('hidden');
+            displayUserList();
+            displayLinkList();
+        }
+
+        function updateCoinBalance() {
+            if (currentUser) {
+                const userCoins = users[currentUser].coins || 0;
+                document.getElementById('coinBalance').innerText = userCoins;
+            }
+        }
+
+        function addTikTokLink() {
+            const link = prompt('Insira o link do vídeo do TikTok:');
+            if (link) {
+                links.push({ link });
+                saveDataToStorage('links', links);
+                alert('Link adicionado com sucesso!');
+            }
+        }
+
+        function watchTikTokVideo() {
+            // Verifica se existem links disponíveis
+            if (links.length === 0) {
+                alert('Não há links disponíveis para assistir.');
+                return; // Sai da função se não houver links
+            }
+
+            // Seleciona um link aleatório
+            const randomLink = links[Math.floor(Math.random() * links.length)];
+            
+            // Redireciona para o link do TikTok
+            window.open(randomLink.link, '_blank');
+
+            // Exibe a mensagem após retornar
+            alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
+            users[currentUser].coins += 10; // Adiciona 10 moedas ao saldo
+            saveDataToStorage('users', users);
+            updateCoinBalance();
+        }
+
+        function displayUserList() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            for (let user in users) {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'list-item';
+                userDiv.innerHTML = `<span>${user} - Moedas: ${users[user].coins}</span>`;
+                userList.appendChild(userDiv);
+            }
+        }
+
+        function displayLinkList() {
+            const linkList = document.getElementById('linkList');
+            linkList.innerHTML = '';
+            links.forEach(link => {
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'list-item';
+                linkDiv.innerHTML = `<span>${link.link}</span>`;
+                linkList.appendChild(linkDiv);
+            });
+        }
+
+        // Inicializa a página
+        if (currentUser) {
+            showMainPage();
+        } else {
+            showLoginPage();
         }
     </script>
 </body>
