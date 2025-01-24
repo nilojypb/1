@@ -28,7 +28,6 @@
             max-width: 400px;
             padding: 40px;
             text-align: center;
-            transition: all 0.3s ease-in-out;
         }
 
         .container h1 {
@@ -92,6 +91,13 @@
         </div>
     </div>
 
+    <!-- Tela Principal -->
+    <div class="container hidden" id="mainPage">
+        <h1>Bem-vindo(a), <span id="currentUser"></span>!</h1>
+        <p>Saldo: <span id="coinBalance">0</span> moedas</p>
+        <button onclick="logout()">Sair</button>
+    </div>
+
     <!-- Tela do Administrador -->
     <div class="container hidden" id="adminPage">
         <h1>Administração</h1>
@@ -121,8 +127,8 @@
                 showAdminPage();
             } else if (users[username] && users[username].password === password) {
                 currentUser = username;
-                alert(`Bem-vindo, ${username}!`);
-                showLoginPage();
+                localStorage.setItem('currentUser', currentUser);
+                showMainPage();
             } else {
                 alert('Usuário ou senha incorretos.');
             }
@@ -149,18 +155,30 @@
         function showLoginPage() {
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
         }
 
         function showRegisterPage() {
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('registerPage').classList.remove('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
+        }
+
+        function showMainPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('currentUser').innerText = currentUser;
+            document.getElementById('coinBalance').innerText = users[currentUser].coins;
         }
 
         function showAdminPage() {
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.remove('hidden');
             renderUserList();
         }
@@ -177,8 +195,20 @@
 
         function logout() {
             currentUser = null;
+            localStorage.removeItem('currentUser');
             showLoginPage();
         }
+
+        // Verifica se o usuário já está logado ao carregar a página
+        window.onload = () => {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = savedUser;
+                showMainPage();
+            } else {
+                showLoginPage();
+            }
+        };
     </script>
 </body>
 </html>
