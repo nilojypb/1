@@ -1,120 +1,256 @@
-<script>
-    const ADMIN_USERNAME = "Danilo";
-    const ADMIN_PASSWORD = "Danilo@123";
-
-    let users = JSON.parse(localStorage.getItem('users')) || {};
-    let links = JSON.parse(localStorage.getItem('links')) || [];
-    let currentUser = localStorage.getItem('currentUser') || null;
-    let followedProfiles = JSON.parse(localStorage.getItem('followedProfiles')) || {}; // Novo estado para controlar se os perfis foram seguidos por usuário
-
-    function saveDataToStorage(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
-    }
-
-    function registerUser() {
-        const username = document.getElementById('registerUsername').value;
-        const password = document.getElementById('registerPassword').value;
-        if (username && password) {
-            if (users[username]) {
-                alert("Usuário já existe!");
-                return;
-            }
-            users[username] = { password, coins: 0, watchedLinks: [] };
-            followedProfiles[username] = false; // Marca como não seguiu perfis
-            saveDataToStorage('users', users);
-            saveDataToStorage('followedProfiles', followedProfiles);
-            alert('Usuário cadastrado com sucesso!');
-            showFollowPage(username); // Após registro, redireciona para seguir perfis
-        } else {
-            alert('Por favor, preencha todos os campos.');
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema TikTok</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Estilo Global */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f1f2f6;
+            position: relative;
+            overflow-x: hidden;
         }
-    }
 
-    function loginUser() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-        if (users[username] && users[username].password === password) {
-            currentUser = username;
-            localStorage.setItem('currentUser', currentUser);
-            if (followedProfiles[username]) {
-                showMainPage(); // Se já seguiu, vai para a tela principal
+        /* Container principal */
+        .container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Título */
+        .container h1 {
+            font-size: 26px;
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Inputs */
+        .container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .container input:focus {
+            outline: none;
+            border-color: #0984e3;
+            box-shadow: 0 0 10px rgba(116, 185, 255, 0.6);
+        }
+
+        /* Botões */
+        .container button {
+            width: 100%;
+            padding: 14px;
+            background: #0984e3;
+            color: #fff;
+            font-weight: 600;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .container button:hover {
+            background: #74b9ff;
+            transform: translateY(-2px);
+        }
+
+        .container .link a {
+            color: #0984e3;
+            text-decoration: none;
+        }
+
+        .container .link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Tela Principal */
+        .balance {
+            font-size: 18px;
+            color: #2d3436;
+            margin: 10px 0;
+        }
+
+        .balance span {
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Estilo do botão de logout */
+        #logoutButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #d63031;
+            color: white;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        #logoutButton:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Estilo de Links e Admin */
+        .admin-container h2 {
+            margin-top: 30px;
+            font-size: 20px;
+            color: #2d3436;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+
+        .list-item button {
+            background: #e17055;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .list-item button:hover {
+            background: #d63031;
+        }
+
+        .list-item input {
+            width: 60px;
+            margin-left: 10px;
+            padding: 5px;
+            border: 1px solid #dfe6e9;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .list-item input[type="text"] {
+            width: 100px;
+        }
+
+        /* Estilo da Tela de Seguir Perfis */
+        .follow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .follow-container button {
+            background: #00b894;
+        }
+
+        .follow-container button:hover {
+            background: #00cec9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de seguir perfis antes do registro -->
+    <div class="container hidden" id="followBeforeRegisterPage">
+        <h1>Siga essas contas antes de se registrar</h1>
+        <div class="follow-container">
+            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
+                <button>Seguir @mentecuriosabia</button>
+            </a>
+            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
+                <button>Seguir @thamyresp06</button>
+            </a>
+            <button onclick="confirmFollowBeforeRegister()">Já segui</button>
+        </div>
+    </div>
+
+    <!-- Tela de Registro -->
+    <div class="container hidden" id="registerPage">
+        <h1>Registrar</h1>
+        <input type="text" id="registerUsername" placeholder="Usuário">
+        <input type="password" id="registerPassword" placeholder="Senha">
+        <button onclick="registerUser()">Cadastrar</button>
+        <div class="link">
+            <p>Já tem uma conta? <a href="#" onclick="showLoginPage()">Login</a></p>
+        </div>
+    </div>
+
+    <!-- Tela de Login -->
+    <div class="container" id="loginPage">
+        <h1>Login</h1>
+        <input type="text" id="loginUsername" placeholder="Usuário">
+        <input type="password" id="loginPassword" placeholder="Senha">
+        <button onclick="loginUser()">Logar</button>
+        <div class="link">
+            <p>Não tem uma conta? <a href="#" onclick="showRegisterPage()">Cadastrar</a></p>
+        </div>
+    </div>
+
+    <!-- Restante do HTML permanece inalterado -->
+
+    <script>
+        const ADMIN_USERNAME = "Danilo";
+        const ADMIN_PASSWORD = "Danilo@123";
+
+        let hasFollowedBeforeRegister = JSON.parse(localStorage.getItem('hasFollowedBeforeRegister')) || false;
+
+        // Mostra a tela de seguir perfis antes do registro
+        function showFollowBeforeRegisterPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followBeforeRegisterPage').classList.remove('hidden');
+        }
+
+        function confirmFollowBeforeRegister() {
+            hasFollowedBeforeRegister = true;
+            localStorage.setItem('hasFollowedBeforeRegister', JSON.stringify(hasFollowedBeforeRegister));
+            showRegisterPage(); // Exibe a tela de registro
+        }
+
+        // Redefine a lógica de mostrar a tela de registro
+        const originalShowRegisterPage = showRegisterPage;
+        showRegisterPage = function () {
+            if (!hasFollowedBeforeRegister) {
+                showFollowBeforeRegisterPage(); // Exibe a tela de seguir antes da de registro
             } else {
-                showFollowPage(username); // Se não seguiu, redireciona para seguir perfis
+                document.getElementById('followBeforeRegisterPage').classList.add('hidden');
+                document.getElementById('registerPage').classList.remove('hidden');
             }
-        } else if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            currentUser = username;
-            localStorage.setItem('currentUser', currentUser);
-            alert('Login como administrador bem-sucedido!');
-            showAdminPage();
-        } else {
-            alert('Usuário ou senha incorretos.');
-        }
-    }
-
-    function logout() {
-        currentUser = null;
-        localStorage.removeItem('currentUser');
-        showLoginPage();
-    }
-
-    function showLoginPage() {
-        document.getElementById('registerPage').classList.add('hidden');
-        document.getElementById('loginPage').classList.remove('hidden');
-        document.getElementById('mainPage').classList.add('hidden');
-        document.getElementById('adminPage').classList.add('hidden');
-        document.getElementById('followPage').classList.add('hidden');
-        document.getElementById('logoutButton').classList.add('hidden');
-    }
-
-    function showRegisterPage() {
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('registerPage').classList.remove('hidden');
-    }
-
-    function showFollowPage(username) {
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('registerPage').classList.add('hidden');
-        document.getElementById('followPage').classList.remove('hidden');
-        document.getElementById('mainPage').classList.add('hidden');
-        document.getElementById('adminPage').classList.add('hidden');
-        document.getElementById('logoutButton').classList.add('hidden');
-
-        // Define ação para "Já segui"
-        const followedButton = document.getElementById('followedButton');
-        followedButton.onclick = function () {
-            followedProfiles[username] = true;
-            saveDataToStorage('followedProfiles', followedProfiles);
-            showMainPage();
         };
-    }
-
-    function showMainPage() {
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('registerPage').classList.add('hidden');
-        document.getElementById('followPage').classList.add('hidden');
-        document.getElementById('mainPage').classList.remove('hidden');
-        document.getElementById('adminPage').classList.add('hidden');
-        document.getElementById('logoutButton').classList.remove('hidden');
-        document.getElementById('currentUser').innerText = currentUser;
-        updateCoinBalance();
-    }
-
-    function updateCoinBalance() {
-        if (currentUser) {
-            const userCoins = users[currentUser].coins || 0;
-            document.getElementById('coinBalance').innerText = userCoins;
-        }
-    }
-
-    // Inicializa a página
-    if (currentUser) {
-        if (followedProfiles[currentUser]) {
-            showMainPage();
-        } else {
-            showFollowPage(currentUser);
-        }
-    } else {
-        showLoginPage();
-    }
-            </script>
-            
+    </script>
+</body>
+</html>
