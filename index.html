@@ -250,7 +250,6 @@
         let users = JSON.parse(localStorage.getItem('users')) || {};
         let links = JSON.parse(localStorage.getItem('links')) || [];
         let currentUser = localStorage.getItem('currentUser') || null;
-        let followedProfiles = false; // Novo estado para controlar se os perfis foram seguidos
 
         function saveDataToStorage(key, data) {
             localStorage.setItem(key, JSON.stringify(data));
@@ -259,51 +258,40 @@
         function registerUser() {
             const username = document.getElementById('registerUsername').value;
             const password = document.getElementById('registerPassword').value;
-            if (username && password) {
-                users[username] = { password, coins: 0, watchedLinks: [] };
-                saveDataToStorage('users', users);
-                alert('Usuário cadastrado com sucesso!');
-                showLoginPage();
-            } else {
-                alert('Por favor, preencha todos os campos.');
+
+            if (!username || !password) {
+                alert("Por favor, preencha todos os campos.");
+                return;
             }
+
+            // Adiciona o usuário com 40 moedas
+            users[username] = { password, coins: 40, followed: false };
+            saveDataToStorage('users', users);
+            alert("Usuário cadastrado com sucesso!");
+
+            // Redireciona para a tela de login
+            showLoginPage();
         }
 
         function loginUser() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
+
             if (users[username] && users[username].password === password) {
                 currentUser = username;
                 localStorage.setItem('currentUser', currentUser);
-                showFollowPage(); // Exibe a página de seguir antes da principal
-            } else if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                currentUser = username;
-                localStorage.setItem('currentUser', currentUser);
-                alert('Login como administrador bem-sucedido!');
-                showAdminPage();
+
+                // Verifica se o usuário já seguiu os perfis
+                if (!users[username].followed) {
+                    // Se não seguiu, mostra a tela de seguir
+                    showFollowPage();
+                } else {
+                    // Se já seguiu, mostra a tela principal
+                    enterMainPage();
+                }
             } else {
-                alert('Usuário ou senha incorretos.');
+                alert("Usuário ou senha incorretos.");
             }
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            showLoginPage();
-        }
-
-        function showLoginPage() {
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
-            followedProfiles = false; // Reseta o estado ao voltar para o login
-        }
-
-        function showRegisterPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.remove('hidden');
         }
 
         function showFollowPage() {
@@ -312,140 +300,150 @@
             document.getElementById('followPage').classList.remove('hidden');
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
+
+            // Reseta o botão para aparecer
+            document.getElementById('followedButton').classList.add('hidden');
         }
 
         function enterMainPage() {
-            if (followedProfiles) {
-                showMainPage();
-            } else {
-                alert('Você precisa seguir os dois perfis para entrar.');
-            }
-        }
-
-        function markAsFollowed() {
-            followedProfiles = true;
-            document.getElementById('followedButton').classList.remove('hidden');
-        }
-
-        function showMainPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('followPage').classList.add('hidden');
             document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.remove('hidden');
-            document.getElementById('currentUser').innerText = currentUser;
-            updateCoinBalance();
-        }
 
-        function showAdminPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('followPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.remove('hidden');
-            document.getElementById('logoutButton').classList.remove('hidden');
-            displayUserList();
-            displayLinkList();
-        }
+            document.getElementById('currentUser').textContent = currentUser;
+            document.getElementById('coinBalance').textContent = users[currentUser].coins;
 
-        function updateCoinBalance() {
-            if (currentUser) {
-                const userCoins = users[currentUser].coins || 0;
-                document.getElementById('coinBalance').innerText = userCoins;
-            }
+            // Atualiza a flag de seguido
+            users[currentUser].followed = true;
+            saveDataToStorage('users', users);
         }
 
         function addTikTokLink() {
-            const link = prompt('Insira o link do vídeo do TikTok:');
+            const link = prompt("Digite o link do TikTok:");
             if (link) {
-                links.push({ link });
+                links.push(link);
                 saveDataToStorage('links', links);
-                alert('Link adicionado com sucesso!');
+                alert("Link adicionado com sucesso!");
             }
         }
 
         function watchTikTokVideo() {
-            const availableLinks = links.filter(link => !users[currentUser].watchedLinks.includes(link.link));
-            if (availableLinks.length === 0) {
-                alert('Não há links disponíveis para assistir.');
+            if (links.length === 0) {
+                alert("Não há vídeos disponíveis para assistir.");
                 return;
             }
 
-            const randomLink = availableLinks[Math.floor(Math.random() * availableLinks.length)];
-            window.open(randomLink.link, '_blank');
-            alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
-            users[currentUser].coins += 10;
-            users[currentUser].watchedLinks.push(randomLink.link);
-            saveDataToStorage('users', users);
-            updateCoinBalance();
+            const randomIndex = Math.floor(Math.random() * links.length);
+            const videoLink = links[randomIndex];
+
+            // Abre o vídeo em uma nova aba
+            window.open(videoLink, '_blank');
+
+            // Adiciona moedas após o vídeo ser assistido
+            setTimeout(() => {
+                users[currentUser].coins += 10;
+                saveDataToStorage('users', users); // Salva as mudanças no localStorage
+                document.getElementById('coinBalance').textContent = users[currentUser].coins; // Atualiza a interface
+                alert("Você ganhou 10 moedas por assistir ao vídeo!");
+            }, 5000); // Simula 5 segundos para "assistir" o vídeo
         }
 
-        function displayUserList() {
-            const userList = document.getElementById('userList');
-            userList.innerHTML = '';
-            for (let user in users) {
-                const userDiv = document.createElement('div');
-                userDiv.className = 'list-item';
-                userDiv.innerHTML = `
-                    <span>${user} - Moedas: ${users[user].coins}</span>
-                    <button onclick="removeUser('${user}')">Excluir</button>
-                    <input type="number" min="0" placeholder="Alterar Moedas" onchange="changeUserCoins('${user}', this.value)">
-                `;
-                userList.appendChild(userDiv);
-            }
+        function showLoginPage() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
         }
 
-        function displayLinkList() {
-            const linkList = document.getElementById('linkList');
-            linkList.innerHTML = '';
-            links.forEach(link => {
-                const linkDiv = document.createElement('div');
-                linkDiv.className = 'list-item';
-                linkDiv.innerHTML = `
-                    <span>${link.link}</span>
-                    <button onclick="removeLink('${link.link}')">Excluir</button>
-                `;
-                linkList.appendChild(linkDiv);
-            });
+        function showRegisterPage() {
+            document.getElementById('registerPage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
         }
 
-        function removeUser(username) {
-            delete users[username];
-            saveDataToStorage('users', users);
-            displayUserList();
-            alert(`Usuário ${username} excluído com sucesso!`);
-        }
-
-        function removeLink(link) {
-            links = links.filter(l => l.link !== link);
-            saveDataToStorage('links', links);
-            displayLinkList();
-            alert(`Link ${link} excluído com sucesso!`);
-        }
-
-        function changeUserCoins(username, coins) {
-            if (coins) {
-                users[username].coins = parseInt(coins);
-                saveDataToStorage('users', users);
-                displayUserList();
-                alert(`Moedas de ${username} alteradas para ${coins}`);
-            }
-        }
-
-        // Inicializa a página
-        if (currentUser) {
-            showFollowPage();
-        } else {
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
             showLoginPage();
         }
 
-        // Marcar como seguido
-        document.querySelectorAll('.follow-container a button').forEach(button => {
-            button.addEventListener('click', markAsFollowed);
-        });
+        // Página do Admin
+        function showAdminPage() {
+            document.getElementById('adminPage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
 
+            loadAdminUsers();
+            loadAdminLinks();
+        }
+
+        function loadAdminUsers() {
+            const userListDiv = document.getElementById('userList');
+            userListDiv.innerHTML = ''; // Limpa a lista
+
+            for (const username in users) {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'list-item';
+                userDiv.innerHTML = `
+                    ${username}
+                    <button onclick="deleteUser('${username}')">Excluir</button>
+                    <input type="text" placeholder="Moedas" value="${users[username].coins}" onblur="updateUserCoins('${username}', this.value)">
+                `;
+                userListDiv.appendChild(userDiv);
+            }
+        }
+
+        function loadAdminLinks() {
+            const linkListDiv = document.getElementById('linkList');
+            linkListDiv.innerHTML = ''; // Limpa a lista
+
+            links.forEach((link, index) => {
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'list-item';
+                linkDiv.innerHTML = `
+                    ${link}
+                    <button onclick="deleteLink(${index})">Excluir</button>
+                `;
+                linkListDiv.appendChild(linkDiv);
+            });
+        }
+
+        function deleteUser(username) {
+            delete users[username];
+            saveDataToStorage('users', users);
+            loadAdminUsers(); // Atualiza a lista de usuários
+        }
+
+        function updateUserCoins(username, coins) {
+            if (!isNaN(coins) && coins >= 0) {
+                users[username].coins = parseInt(coins);
+                saveDataToStorage('users', users);
+            }
+        }
+
+        function deleteLink(index) {
+            links.splice(index, 1);
+            saveDataToStorage('links', links);
+            loadAdminLinks(); // Atualiza a lista de links
+        }
+
+        // Inicialização
+        window.onload = function () {
+            if (currentUser) {
+                // Verifica se o usuário está logado
+                if (users[currentUser] && users[currentUser].followed) {
+                    enterMainPage();
+                } else {
+                    showFollowPage();
+                }
+            } else {
+                showLoginPage();
+            }
+        };
     </script>
 </body>
 </html>
