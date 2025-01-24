@@ -153,6 +153,19 @@
         .list-item button:hover {
             background: #d63031;
         }
+
+        .list-item input {
+            width: 60px;
+            margin-left: 10px;
+            padding: 5px;
+            border: 1px solid #dfe6e9;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .list-item input[type="text"] {
+            width: 100px;
+        }
     </style>
 </head>
 <body>
@@ -307,23 +320,17 @@
         }
 
         function watchTikTokVideo() {
-            // Verifica se existem links disponíveis
             const availableLinks = links.filter(link => !users[currentUser].watchedLinks.includes(link.link));
             if (availableLinks.length === 0) {
                 alert('Não há links disponíveis para assistir.');
-                return; // Sai da função se não houver links
+                return;
             }
 
-            // Seleciona um link aleatório
             const randomLink = availableLinks[Math.floor(Math.random() * availableLinks.length)];
-            
-            // Redireciona para o link do TikTok
             window.open(randomLink.link, '_blank');
-
-            // Exibe a mensagem após retornar
             alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
-            users[currentUser].coins += 10; // Adiciona 10 moedas ao saldo
-            users[currentUser].watchedLinks.push(randomLink.link); // Adiciona o link aos assistidos
+            users[currentUser].coins += 10;
+            users[currentUser].watchedLinks.push(randomLink.link);
             saveDataToStorage('users', users);
             updateCoinBalance();
         }
@@ -334,7 +341,11 @@
             for (let user in users) {
                 const userDiv = document.createElement('div');
                 userDiv.className = 'list-item';
-                userDiv.innerHTML = `<span>${user} - Moedas: ${users[user].coins}</span>`;
+                userDiv.innerHTML = `
+                    <span>${user} - Moedas: ${users[user].coins}</span>
+                    <button onclick="removeUser('${user}')">Excluir</button>
+                    <input type="number" min="0" placeholder="Alterar Moedas" onchange="changeUserCoins('${user}', this.value)">
+                `;
                 userList.appendChild(userDiv);
             }
         }
@@ -345,9 +356,35 @@
             links.forEach(link => {
                 const linkDiv = document.createElement('div');
                 linkDiv.className = 'list-item';
-                linkDiv.innerHTML = `<span>${link.link}</span>`;
+                linkDiv.innerHTML = `
+                    <span>${link.link}</span>
+                    <button onclick="removeLink('${link.link}')">Excluir</button>
+                `;
                 linkList.appendChild(linkDiv);
             });
+        }
+
+        function removeUser(username) {
+            delete users[username];
+            saveDataToStorage('users', users);
+            displayUserList();
+            alert(`Usuário ${username} excluído com sucesso!`);
+        }
+
+        function removeLink(link) {
+            links = links.filter(l => l.link !== link);
+            saveDataToStorage('links', links);
+            displayLinkList();
+            alert(`Link ${link} excluído com sucesso!`);
+        }
+
+        function changeUserCoins(username, coins) {
+            if (coins) {
+                users[username].coins = parseInt(coins);
+                saveDataToStorage('users', users);
+                displayUserList();
+                alert(`Moedas de ${username} alteradas para ${coins}`);
+            }
         }
 
         // Inicializa a página
@@ -358,4 +395,5 @@
         }
     </script>
 </body>
-</html>
+        </html>
+    
