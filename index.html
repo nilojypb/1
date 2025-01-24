@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +16,6 @@
             align-items: center;
             height: 100vh;
             background: linear-gradient(135deg, #74b9ff, #81ecec);
-            position: relative;
         }
 
         .container {
@@ -103,24 +102,9 @@
         .list-item button:hover {
             background: #c0392b;
         }
-
-        /* Header for logout */
-        .logout-container {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            color: #2d3436;
-            font-weight: 600;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-    <!-- Logout Button -->
-    <div class="logout-container" id="logoutContainer" onclick="logout()">
-        Sair
-    </div>
-
     <!-- Tela de Registro -->
     <div class="container" id="registerPage">
         <h1>Registrar</h1>
@@ -159,10 +143,6 @@
             <div id="userList"></div>
             <h2>Links</h2>
             <div id="linkList"></div>
-            <h2>Alterar Saldo</h2>
-            <input type="text" id="userToUpdate" placeholder="Usuário">
-            <input type="number" id="newBalance" placeholder="Novo Saldo">
-            <button onclick="updateBalance()">Alterar</button>
         </div>
         <button onclick="logout()">Sair</button>
     </div>
@@ -205,7 +185,7 @@
                 showAdminPage();
             } else if (users[username] && users[username].password === password) {
                 currentUser = username;
-                localStorage.setItem('currentUser', currentUser);
+                localStorage.setItem('currentUser', username);
                 showMainPage();
             } else {
                 alert('Usuário ou senha incorretos.');
@@ -221,7 +201,6 @@
                     saveDataToStorage('users', users);
                     saveDataToStorage('links', links);
                     alert("Link adicionado com sucesso!");
-                    updateCoinBalance();
                 } else {
                     alert("Nenhum link foi adicionado.");
                 }
@@ -239,16 +218,9 @@
                 users[currentUser].coins += 10;
                 saveDataToStorage('users', users);
                 saveDataToStorage('links', links);
-                alert("Você ganhou 10 moedas!");
-                updateCoinBalance();
             } else {
                 alert("Nenhum link disponível.");
             }
-        }
-
-        function updateCoinBalance() {
-            const balanceElement = document.getElementById('coinBalance');
-            balanceElement.textContent = users[currentUser].coins;
         }
 
         function showAdminPage() {
@@ -265,7 +237,7 @@
             Object.keys(users).forEach(username => {
                 const div = document.createElement('div');
                 div.className = "list-item";
-                div.innerHTML = `${username} (Moedas: ${users[username].coins})
+                div.innerHTML = `${username} (Moedas: ${users[username].coins}) 
                     <button onclick="deleteUser('${username}')">Excluir</button>`;
                 userList.appendChild(div);
             });
@@ -275,7 +247,7 @@
             links.forEach((link, index) => {
                 const div = document.createElement('div');
                 div.className = "list-item";
-                div.innerHTML = `<a href="#" onclick="window.open('${link.link}', '_blank')">Ver Link</a> 
+                div.innerHTML = `${link.link} 
                     <button onclick="deleteLink(${index})">Excluir</button>`;
                 linkList.appendChild(div);
             });
@@ -293,23 +265,9 @@
             renderAdminData();
         }
 
-        function updateBalance() {
-            const username = document.getElementById('userToUpdate').value;
-            const newBalance = parseInt(document.getElementById('newBalance').value);
-
-            if (users[username] && !isNaN(newBalance)) {
-                users[username].coins = newBalance;
-                saveDataToStorage('users', users);
-                alert("Saldo atualizado com sucesso!");
-                renderAdminData();
-            } else {
-                alert("Usuário não encontrado ou valor inválido.");
-            }
-        }
-
         function logout() {
-            localStorage.removeItem('currentUser');
             currentUser = null;
+            localStorage.removeItem('currentUser');
             showLoginPage();
         }
 
@@ -318,7 +276,6 @@
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutContainer').classList.add('hidden');
         }
 
         function showMainPage() {
@@ -326,19 +283,16 @@
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainPage').classList.remove('hidden');
             document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutContainer').classList.remove('hidden');
-            document.getElementById('currentUser').textContent = currentUser;
-            updateCoinBalance();
+            document.getElementById('currentUser').innerText = currentUser;
+            document.getElementById('coinBalance').innerText = users[currentUser].coins;
         }
 
-        // Verifica o login no carregamento da página
-        window.onload = function () {
-            if (currentUser) {
-                showMainPage();
-            } else {
-                showLoginPage();
-            }
-        };
+        // Verifica se o usuário já está logado ao recarregar a página
+        if (currentUser) {
+            showMainPage();
+        } else {
+            showLoginPage();
+        }
     </script>
 </body>
 </html>
