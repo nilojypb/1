@@ -62,7 +62,7 @@
 </head>
 <body>
   <!-- Tela de Registro -->
-  <div id="registerPage" class="container">
+  <div id="registerPage" class="container active">
     <h2>Registrar</h2>
     <input id="registerUsername" type="text" placeholder="Usuário">
     <input id="registerPassword" type="password" placeholder="Senha">
@@ -120,6 +120,11 @@
     function registerUser() {
       const username = document.getElementById('registerUsername').value;
       const password = document.getElementById('registerPassword').value;
+
+      if (!username || !password) {
+        alert('Preencha todos os campos!');
+        return;
+      }
 
       if (users.some(user => user.username === username)) {
         alert('Usuário já registrado!');
@@ -202,7 +207,6 @@
       `).join('');
     }
 
-    // Inicia na página de login ou mantém o estado atual
     if (currentUser) {
       if (currentUser.username === 'admin') {
         showPage('adminPage');
@@ -214,7 +218,7 @@
         loadLinks();
       }
     } else {
-      switchToLogin();
+      showPage('registerPage');
     }
   </script>
 </body>
