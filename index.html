@@ -164,6 +164,11 @@
         .list-item button:hover {
             background: #d63031;
         }
+
+        /* Tornar as páginas invisíveis */
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +201,7 @@
     </div>
 
     <!-- Tela de Login -->
-    <div class="container" id="loginPage">
+    <div class="container hidden" id="loginPage">
         <h1>Login</h1>
         <input type="text" id="loginUsername" placeholder="Usuário">
         <input type="password" id="loginPassword" placeholder="Senha">
@@ -277,9 +282,38 @@
         }
 
         function showFollowPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
+            hideAllPages();
             document.getElementById('followPage').classList.remove('hidden');
+        }
+
+        function showRegisterPage() {
+            hideAllPages();
+            document.getElementById('registerPage').classList.remove('hidden');
+        }
+
+        function showLoginPage() {
+            hideAllPages();
+            document.getElementById('loginPage').classList.remove('hidden');
+        }
+
+        function showMainPage() {
+            hideAllPages();
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('currentUser').innerText = currentUser;
+            document.getElementById('coinBalance').innerText = users[currentUser].coins;
+            document.getElementById('logoutButton').classList.remove('hidden');
+        }
+
+        function showAdminPage() {
+            hideAllPages();
+            document.getElementById('adminPage').classList.remove('hidden');
+        }
+
+        function hideAllPages() {
+            const pages = document.querySelectorAll('.container');
+            pages.forEach(page => {
+                page.classList.add('hidden');
+            });
         }
 
         function markAsFollowed() {
@@ -296,23 +330,10 @@
             }, 10000);  // 10 segundos
         }
 
-        function showLoginPage() {
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('followPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
-        }
-
-        function showMainPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('followPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('currentUser').innerText = currentUser;
-            document.getElementById('coinBalance').innerText = users[currentUser].coins;
-            document.getElementById('logoutButton').classList.remove('hidden');
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            showLoginPage();
         }
 
         // Verifica se o usuário já está logado ao recarregar a página
