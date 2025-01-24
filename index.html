@@ -85,6 +85,21 @@
             text-decoration: underline;
         }
 
+        /* Tela de Acesso */
+        .access-container {
+            text-align: center;
+        }
+
+        .access-container p {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #2d3436;
+        }
+
+        .access-container button {
+            margin: 10px;
+        }
+
         /* Tela Principal */
         .balance {
             font-size: 18px;
@@ -94,10 +109,6 @@
 
         .balance span {
             font-weight: bold;
-        }
-
-        .hidden {
-            display: none;
         }
 
         /* Estilo do botão de logout */
@@ -167,6 +178,23 @@
         </div>
     </div>
 
+    <!-- Tela de Acesso para seguir as contas -->
+    <div class="container hidden" id="followPage">
+        <h1>Antes de acessar, siga as contas no TikTok</h1>
+        <p>Siga essas contas para liberar o acesso:</p>
+        <p>
+            <a href="https://www.tiktok.com/@mentecuriosabia?is_from_webapp=1&sender_device=pc" target="_blank">
+                Siga a conta "mentecuriosabia"
+            </a>
+        </p>
+        <p>
+            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
+                Siga a conta "thamyresp06"
+            </a>
+        </p>
+        <button id="followButton" onclick="markAsFollowed()">Já Segui</button>
+    </div>
+
     <!-- Tela de Login -->
     <div class="container" id="loginPage">
         <h1>Login</h1>
@@ -208,6 +236,8 @@
         let users = JSON.parse(localStorage.getItem('users')) || {};
         let links = JSON.parse(localStorage.getItem('links')) || [];
         let currentUser = localStorage.getItem('currentUser') || null;
+        let hasFollowed = false;
+        let followTime = 0;
 
         function saveDataToStorage(key, data) {
             localStorage.setItem(key, JSON.stringify(data));
@@ -246,83 +276,24 @@
             }
         }
 
-        function addTikTokLink() {
-            if (users[currentUser].coins >= 50) {
-                const link = prompt("Insira o link do TikTok:");
-                if (link) {
-                    links.push({ link, allowedUsers: Object.keys(users) });
-                    users[currentUser].coins -= 50;
-                    saveDataToStorage('users', users);
-                    saveDataToStorage('links', links);
-                    alert("Link adicionado com sucesso!");
-                } else {
-                    alert("Nenhum link foi adicionado.");
-                }
-            } else {
-                alert("Você não tem moedas suficientes.");
-            }
-        }
-
-        function watchTikTokVideo() {
-            const availableLinks = links.filter(link => link.allowedUsers.includes(currentUser));
-            if (availableLinks.length > 0) {
-                const randomLink = availableLinks[0];
-                window.open(randomLink.link, "_blank");
-                randomLink.allowedUsers = randomLink.allowedUsers.filter(user => user !== currentUser);
-                users[currentUser].coins += 10;
-                saveDataToStorage('users', users);
-                saveDataToStorage('links', links);
-            } else {
-                alert("Nenhum link disponível.");
-            }
-        }
-
-        function showAdminPage() {
-            document.getElementById('registerPage').classList.add('hidden');
+        function showFollowPage() {
             document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.remove('hidden');
-            renderAdminData();
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followPage').classList.remove('hidden');
         }
 
-        function renderAdminData() {
-            const userList = document.getElementById('userList');
-            userList.innerHTML = "";
-            Object.keys(users).forEach(username => {
-                const div = document.createElement('div');
-                div.className = "list-item";
-                div.innerHTML = `${username} (Moedas: ${users[username].coins}) 
-                    <button onclick="deleteUser('${username}')">Excluir</button>`;
-                userList.appendChild(div);
-            });
-
-            const linkList = document.getElementById('linkList');
-            linkList.innerHTML = "";
-            links.forEach((link, index) => {
-                const div = document.createElement('div');
-                div.className = "list-item";
-                div.innerHTML = `${link.link} 
-                    <button onclick="deleteLink(${index})">Excluir</button>`;
-                linkList.appendChild(div);
-            });
-        }
-
-        function deleteUser(username) {
-            delete users[username];
-            saveDataToStorage('users', users);
-            renderAdminData();
-        }
-
-        function deleteLink(index) {
-            links.splice(index, 1);
-            saveDataToStorage('links', links);
-            renderAdminData();
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            showLoginPage();
+        function markAsFollowed() {
+            if (!hasFollowed) {
+                alert("Você deve esperar 10 segundos após seguir as contas.");
+                return;
+            }
+            followTime = Date.now();
+            document.getElementById('followButton').disabled = true;
+            setTimeout(() => {
+                document.getElementById('followButton').innerText = "Já Segui";
+                document.getElementById('followButton').disabled = false;
+                alert("Agora você pode acessar o login.");
+            }, 10000);  // 10 segundos
         }
 
         function showLoginPage() {
@@ -330,22 +301,15 @@
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
-        }
-
-        function showRegisterPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
             document.getElementById('logoutButton').classList.add('hidden');
         }
 
         function showMainPage() {
-            document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
             document.getElementById('currentUser').innerText = currentUser;
             document.getElementById('coinBalance').innerText = users[currentUser].coins;
             document.getElementById('logoutButton').classList.remove('hidden');
@@ -355,7 +319,7 @@
         if (currentUser) {
             showMainPage();
         } else {
-            showLoginPage();
+            showFollowPage();
         }
     </script>
 </body>
