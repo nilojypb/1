@@ -166,6 +166,21 @@
         .list-item input[type="text"] {
             width: 100px;
         }
+
+        /* Estilo da Tela de Seguir Perfis */
+        .follow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .follow-container button {
+            background: #00b894;
+        }
+
+        .follow-container button:hover {
+            background: #00cec9;
+        }
     </style>
 </head>
 <body>
@@ -188,6 +203,20 @@
         <button onclick="loginUser()">Logar</button>
         <div class="link">
             <p>Não tem uma conta? <a href="#" onclick="showRegisterPage()">Cadastrar</a></p>
+        </div>
+    </div>
+
+    <!-- Tela de Seguir Perfis -->
+    <div class="container hidden" id="followPage">
+        <h1>Para continuar, siga estes perfis</h1>
+        <div class="follow-container">
+            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
+                <button>Seguir @mentecuriosabia</button>
+            </a>
+            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
+                <button>Seguir @thamyresp06</button>
+            </a>
+            <button id="followedButton" class="hidden" onclick="enterMainPage()">Já segui</button>
         </div>
     </div>
 
@@ -221,6 +250,7 @@
         let users = JSON.parse(localStorage.getItem('users')) || {};
         let links = JSON.parse(localStorage.getItem('links')) || [];
         let currentUser = localStorage.getItem('currentUser') || null;
+        let followedProfiles = false; // Novo estado para controlar se os perfis foram seguidos
 
         function saveDataToStorage(key, data) {
             localStorage.setItem(key, JSON.stringify(data));
@@ -229,33 +259,25 @@
         function registerUser() {
             const username = document.getElementById('registerUsername').value;
             const password = document.getElementById('registerPassword').value;
-
             if (username && password) {
-                if (users[username]) {
-                    alert('Usuário já registrado!');
-                } else {
-                    // Adiciona a propriedade watchedLinks ao novo usuário
-                    users[username] = { password, coins: 50, watchedLinks: [] };
-                    saveDataToStorage('users', users);
-                    alert('Usuário registrado com sucesso!');
-                    showLoginPage();
-                }
+                users[username] = { password, coins: 0, watchedLinks: [] };
+                saveDataToStorage('users', users);
+                alert('Usuário cadastrado com sucesso!');
+                showLoginPage();
             } else {
-                alert('Preencha todos os campos.');
+                alert('Por favor, preencha todos os campos.');
             }
         }
 
         function loginUser() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
-
             if (users[username] && users[username].password === password) {
                 currentUser = username;
                 localStorage.setItem('currentUser', currentUser);
-                alert('Login bem-sucedido!');
-                showMainPage();
+                showFollowPage(); // Exibe a página de seguir antes da principal
             } else if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                currentUser = 'Admin';
+                currentUser = username;
                 localStorage.setItem('currentUser', currentUser);
                 alert('Login como administrador bem-sucedido!');
                 showAdminPage();
@@ -276,6 +298,7 @@
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
             document.getElementById('logoutButton').classList.add('hidden');
+            followedProfiles = false; // Reseta o estado ao voltar para o login
         }
 
         function showRegisterPage() {
@@ -283,9 +306,32 @@
             document.getElementById('registerPage').classList.remove('hidden');
         }
 
+        function showFollowPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followPage').classList.remove('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('logoutButton').classList.add('hidden');
+        }
+
+        function enterMainPage() {
+            if (followedProfiles) {
+                showMainPage();
+            } else {
+                alert('Você precisa seguir os dois perfis para entrar.');
+            }
+        }
+
+        function markAsFollowed() {
+            followedProfiles = true;
+            document.getElementById('followedButton').classList.remove('hidden');
+        }
+
         function showMainPage() {
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
             document.getElementById('mainPage').classList.remove('hidden');
             document.getElementById('adminPage').classList.add('hidden');
             document.getElementById('logoutButton').classList.remove('hidden');
@@ -297,6 +343,7 @@
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
             document.getElementById('adminPage').classList.remove('hidden');
             document.getElementById('logoutButton').classList.remove('hidden');
             displayUserList();
@@ -389,11 +436,16 @@
 
         // Inicializa a página
         if (currentUser) {
-            showMainPage();
+            showFollowPage();
         } else {
             showLoginPage();
         }
+
+        // Marcar como seguido
+        document.querySelectorAll('.follow-container a button').forEach(button => {
+            button.addEventListener('click', markAsFollowed);
+        });
+
     </script>
 </body>
-        </html>
-    
+</html>
