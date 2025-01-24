@@ -15,49 +15,56 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #74b9ff, #81ecec);
+            background: #f1f2f6;
             position: relative;
+            overflow-x: hidden;
         }
 
+        /* Container principal */
         .container {
             background: #fff;
-            padding: 30px 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            width: 350px;
-            max-width: 90%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
             text-align: center;
+            transition: all 0.3s ease-in-out;
         }
 
+        /* Título */
         .container h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 26px;
             color: #2d3436;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
 
+        /* Inputs */
         .container input {
             width: 100%;
-            padding: 12px 15px;
-            margin: 10px 0;
+            padding: 12px;
+            margin-bottom: 15px;
             border: 1px solid #dfe6e9;
             border-radius: 8px;
             font-size: 16px;
+            transition: all 0.3s ease;
         }
 
         .container input:focus {
             outline: none;
             border-color: #0984e3;
-            box-shadow: 0 0 5px rgba(116, 185, 255, 0.6);
+            box-shadow: 0 0 10px rgba(116, 185, 255, 0.6);
         }
 
+        /* Botões */
         .container button {
             width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            background: linear-gradient(135deg, #0984e3, #74b9ff);
+            padding: 14px;
+            background: #0984e3;
             color: #fff;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 18px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -65,46 +72,35 @@
         }
 
         .container button:hover {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            background: #74b9ff;
             transform: translateY(-2px);
+        }
+
+        .container .link a {
+            color: #0984e3;
+            text-decoration: none;
+        }
+
+        .container .link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Tela Principal */
+        .balance {
+            font-size: 18px;
+            color: #2d3436;
+            margin: 10px 0;
+        }
+
+        .balance span {
+            font-weight: bold;
         }
 
         .hidden {
             display: none;
         }
 
-        .admin-container {
-            text-align: left;
-        }
-
-        .admin-container h2 {
-            margin-top: 20px;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px;
-            background: #f1f2f6;
-            border-radius: 5px;
-        }
-
-        .list-item button {
-            background: #d63031;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .list-item button:hover {
-            background: #c0392b;
-        }
-
-        /* Estilo para o botão de deslogar */
+        /* Estilo do botão de logout */
         #logoutButton {
             position: absolute;
             top: 20px;
@@ -114,12 +110,48 @@
             color: white;
             font-size: 14px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease, transform 0.2s ease;
         }
 
         #logoutButton:hover {
             background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Estilo de Links e Admin */
+        .admin-container h2 {
+            margin-top: 30px;
+            font-size: 20px;
+            color: #2d3436;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+
+        .list-item button {
+            background: #e17055;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .list-item button:hover {
+            background: #d63031;
         }
     </style>
 </head>
