@@ -261,5 +261,130 @@
             const username = document.getElementById('registerUsername').value;
             const password = document.getElementById('registerPassword').value;
             if (username && password) {
-                users[username] = { password, coins
-        
+                users[username] = { password, coins: 0 };
+                saveDataToStorage('users', users);
+                alert('Usuário registrado com sucesso!');
+                showFollowPage(); // Mostrar tela de seguir perfis após o registro
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        }
+
+        function loginUser() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                localStorage.setItem('currentUser', currentUser);
+                showMainPage();
+            } else {
+                alert('Usuário ou senha incorretos.');
+            }
+        }
+
+        function showRegisterPage() {
+            document.getElementById('registerPage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+        }
+
+        function showLoginPage() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+        }
+
+        function showFollowPage() {
+            // Mostra a tela de seguir apenas se o usuário não for um usuário existente e já viu a tela de seguir
+            if (!users[currentUser] || !hasSeenFollowPage) {
+                document.getElementById('followPage').classList.remove('hidden');
+                document.getElementById('registerPage').classList.add('hidden');
+                hasSeenFollowPage = true; // Marca que a tela de seguir foi vista
+            } else {
+                showMainPage();
+            }
+        }
+
+        function enterMainPage() {
+            followedProfiles = true; // Marca que o usuário seguiu os perfis
+            document.getElementById('followPage').classList.add('hidden');
+            showMainPage();
+        }
+
+        function showMainPage() {
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('logoutButton').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
+            document.getElementById('currentUser').textContent = currentUser;
+            document.getElementById('coinBalance').textContent = users[currentUser].coins;
+        }
+
+        function addTikTokLink() {
+            const link = prompt("Digite o link do TikTok:");
+            if (link) {
+                links.push(link);
+                saveDataToStorage('links', links);
+                alert('Link adicionado com sucesso!');
+            }
+        }
+
+        function watchTikTokVideo() {
+            if (links.length === 0) {
+                alert('Nenhum link disponível.');
+                return;
+            }
+            const randomLink = links[Math.floor(Math.random() * links.length)];
+            window.open(randomLink, '_blank');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('logoutButton').classList.add('hidden');
+            showLoginPage();
+        }
+
+        function displayUsers() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            for (const user in users) {
+                const userItem = document.createElement('div');
+                userItem.classList.add('list-item');
+                userItem.innerHTML = `${user} - ${users[user].coins} moedas <button onclick="removeUser('${user}')">Remover</button>`;
+                userList.appendChild(userItem);
+            }
+        }
+
+        function removeUser(username) {
+            delete users[username];
+            saveDataToStorage('users', users);
+            displayUsers();
+        }
+
+        function displayLinks() {
+            const linkList = document.getElementById('linkList');
+            linkList.innerHTML = '';
+            links.forEach((link, index) => {
+                const linkItem = document.createElement('div');
+                linkItem.classList.add('list-item');
+                linkItem.innerHTML = `${link} <button onclick="removeLink(${index})">Remover</button>`;
+                linkList.appendChild(linkItem);
+            });
+        }
+
+        function removeLink(index) {
+            links.splice(index, 1);
+            saveDataToStorage('links', links);
+            displayLinks();
+        }
+
+        // Verifica se o usuário atual é admin e exibe a tela de admin
+        if (currentUser === ADMIN_USERNAME) {
+            document.getElementById('adminPage').classList.remove('hidden');
+            displayUsers();
+            displayLinks();
+        }
+    </script>
+</body>
+    </html>
+    
