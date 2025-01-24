@@ -184,20 +184,6 @@
     </style>
 </head>
 <body>
-    <!-- Tela de seguir perfis antes do registro -->
-    <div class="container hidden" id="followBeforeRegisterPage">
-        <h1>Siga essas contas antes de se registrar</h1>
-        <div class="follow-container">
-            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
-                <button>Seguir @mentecuriosabia</button>
-            </a>
-            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
-                <button>Seguir @thamyresp06</button>
-            </a>
-            <button onclick="confirmFollowBeforeRegister()">Já segui</button>
-        </div>
-    </div>
-
     <!-- Tela de Registro -->
     <div class="container hidden" id="registerPage">
         <h1>Registrar</h1>
@@ -220,37 +206,60 @@
         </div>
     </div>
 
-    <!-- Restante do HTML permanece inalterado -->
+    <!-- Tela de Seguir Perfis -->
+    <div class="container hidden" id="followPage">
+        <h1>Para continuar, siga estes perfis</h1>
+        <div class="follow-container">
+            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
+                <button>Seguir @mentecuriosabia</button>
+            </a>
+            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
+                <button>Seguir @thamyresp06</button>
+            </a>
+            <button id="followedButton" class="hidden" onclick="enterMainPage()">Já segui</button>
+        </div>
+    </div>
+
+    <!-- Tela Principal -->
+    <div class="container hidden" id="mainPage">
+        <h1>Bem-vindo(a), <span id="currentUser"></span>!</h1>
+        <p class="balance">Saldo: <span id="coinBalance">0</span> moedas</p>
+        <button onclick="addTikTokLink()">Adicionar Link TikTok</button>
+        <button onclick="watchTikTokVideo()">Assistir Vídeo TikTok</button>
+    </div>
+
+    <!-- Tela do Administrador -->
+    <div class="container hidden" id="adminPage">
+        <h1>Administração</h1>
+        <div class="admin-container">
+            <h2>Usuários</h2>
+            <div id="userList"></div>
+            <h2>Links</h2>
+            <div id="linkList"></div>
+        </div>
+        <button onclick="logout()">Sair</button>
+    </div>
+
+    <!-- Botão de Deslogar (aparecendo quando o usuário estiver logado) -->
+    <button id="logoutButton" class="hidden" onclick="logout()">Deslogar</button>
 
     <script>
         const ADMIN_USERNAME = "Danilo";
         const ADMIN_PASSWORD = "Danilo@123";
 
-        let hasFollowedBeforeRegister = JSON.parse(localStorage.getItem('hasFollowedBeforeRegister')) || false;
+        let users = JSON.parse(localStorage.getItem('users')) || {};
+        let links = JSON.parse(localStorage.getItem('links')) || [];
+        let currentUser = localStorage.getItem('currentUser') || null;
+        let followedProfiles = false; // Novo estado para controlar se os perfis foram seguidos
+        let hasSeenFollowPage = false; // Estado para controlar se já viu a tela de seguir perfis
 
-        // Mostra a tela de seguir perfis antes do registro
-        function showFollowBeforeRegisterPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('followBeforeRegisterPage').classList.remove('hidden');
+        function saveDataToStorage(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
         }
 
-        function confirmFollowBeforeRegister() {
-            hasFollowedBeforeRegister = true;
-            localStorage.setItem('hasFollowedBeforeRegister', JSON.stringify(hasFollowedBeforeRegister));
-            showRegisterPage(); // Exibe a tela de registro
-        }
-
-        // Redefine a lógica de mostrar a tela de registro
-        const originalShowRegisterPage = showRegisterPage;
-        showRegisterPage = function () {
-            if (!hasFollowedBeforeRegister) {
-                showFollowBeforeRegisterPage(); // Exibe a tela de seguir antes da de registro
-            } else {
-                document.getElementById('followBeforeRegisterPage').classList.add('hidden');
-                document.getElementById('registerPage').classList.remove('hidden');
-            }
-        };
-    </script>
-</body>
-</html>
+        function registerUser() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            if (username && password) {
+                users[username] = { password, coins
+        
