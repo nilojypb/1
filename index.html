@@ -16,6 +16,7 @@
             align-items: center;
             height: 100vh;
             background: linear-gradient(135deg, #74b9ff, #81ecec);
+            position: relative;
         }
 
         .container {
@@ -102,11 +103,29 @@
         .list-item button:hover {
             background: #c0392b;
         }
+
+        /* Estilo para o botão de deslogar */
+        #logoutButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #d63031;
+            color: white;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #logoutButton:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
     <!-- Tela de Registro -->
-    <div class="container" id="registerPage">
+    <div class="container hidden" id="registerPage">
         <h1>Registrar</h1>
         <input type="text" id="registerUsername" placeholder="Usuário">
         <input type="password" id="registerPassword" placeholder="Senha">
@@ -117,7 +136,7 @@
     </div>
 
     <!-- Tela de Login -->
-    <div class="container hidden" id="loginPage">
+    <div class="container" id="loginPage">
         <h1>Login</h1>
         <input type="text" id="loginUsername" placeholder="Usuário">
         <input type="password" id="loginPassword" placeholder="Senha">
@@ -146,6 +165,9 @@
         </div>
         <button onclick="logout()">Sair</button>
     </div>
+
+    <!-- Botão de Deslogar (aparecendo quando o usuário estiver logado) -->
+    <button id="logoutButton" class="hidden" onclick="logout()">Deslogar</button>
 
     <script>
         const ADMIN_USERNAME = "Danilo";
@@ -276,6 +298,15 @@
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('logoutButton').classList.add('hidden');
+        }
+
+        function showRegisterPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('logoutButton').classList.add('hidden');
         }
 
         function showMainPage() {
@@ -285,6 +316,7 @@
             document.getElementById('adminPage').classList.add('hidden');
             document.getElementById('currentUser').innerText = currentUser;
             document.getElementById('coinBalance').innerText = users[currentUser].coins;
+            document.getElementById('logoutButton').classList.remove('hidden');
         }
 
         // Verifica se o usuário já está logado ao recarregar a página
