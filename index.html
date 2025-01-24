@@ -1,274 +1,221 @@
-```html
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema TikTok</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema TikTok</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #4caf50, #1e88e5);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      display: none;
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      width: 300px;
+      text-align: center;
+    }
+    .container.active {
+      display: block;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    input {
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #1e88e5;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #4caf50;
+    }
+    .balance, .admin-section, .links {
+      margin: 20px 0;
+    }
+    .links {
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
-    <!-- Tela de Seguir Perfis -->
-    <div class="container hidden" id="followPage">
-        <h1>Para continuar, siga estes perfis</h1>
-        <div class="follow-container">
-            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
-                <button>Seguir @mentecuriosabia</button>
-            </a>
-            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
-                <button>Seguir @thamyresp06</button>
-            </a>
-            <button id="followedButton" class="hidden" onclick="enterMainPage()">Já segui</button>
-        </div>
+  <!-- Tela de Registro -->
+  <div id="registerPage" class="container">
+    <h2>Registrar</h2>
+    <input id="registerUsername" type="text" placeholder="Usuário">
+    <input id="registerPassword" type="password" placeholder="Senha">
+    <button onclick="registerUser()">Registrar</button>
+    <button onclick="switchToLogin()">Já tenho uma conta</button>
+  </div>
+
+  <!-- Tela de Login -->
+  <div id="loginPage" class="container">
+    <h2>Login</h2>
+    <input id="loginUsername" type="text" placeholder="Usuário">
+    <input id="loginPassword" type="password" placeholder="Senha">
+    <button onclick="loginUser()">Login</button>
+  </div>
+
+  <!-- Tela Principal -->
+  <div id="mainPage" class="container">
+    <h2>Bem-vindo, <span id="usernameDisplay"></span></h2>
+    <div class="balance">Saldo: <span id="userBalance">0</span> moedas</div>
+    <button onclick="addTikTokLink()">Adicionar Link TikTok</button>
+    <button onclick="watchTikTokVideo()">Assistir Vídeo TikTok</button>
+    <div class="links">
+      <h4>Links Adicionados:</h4>
+      <ul id="linkList"></ul>
     </div>
+    <button onclick="logout()">Sair</button>
+  </div>
 
-    <!-- Tela de Registro -->
-    <div class="container hidden" id="registerPage">
-        <h1>Registrar</h1>
-        <input type="text" id="registerUsername" placeholder="Usuário">
-        <input type="password" id="registerPassword" placeholder="Senha">
-        <button onclick="registerUser()">Cadastrar</button>
-        <div class="link">
-            <p>Já tem uma conta? <a href="#" onclick="showLoginPage()">Login</a></p>
-        </div>
+  <!-- Tela de Administração -->
+  <div id="adminPage" class="container">
+    <h2>Administração</h2>
+    <div class="admin-section">
+      <h4>Gerenciar Usuários</h4>
+      <ul id="userList"></ul>
     </div>
+    <button onclick="logout()">Sair</button>
+  </div>
 
-    <!-- Tela de Login -->
-    <div class="container" id="loginPage">
-        <h1>Login</h1>
-        <input type="text" id="loginUsername" placeholder="Usuário">
-        <input type="password" id="loginPassword" placeholder="Senha">
-        <button onclick="loginUser()">Logar</button>
-        <div class="link">
-            <p>Não tem uma conta? <a href="#" onclick="showRegisterPage()">Cadastrar</a></p>
-        </div>
-    </div>
+  <script>
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const links = JSON.parse(localStorage.getItem('links')) || [];
+    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-    <!-- Tela Principal -->
-    <div class="container hidden" id="mainPage">
-        <h1>Bem-vindo(a), <span id="currentUser"></span>!</h1>
-        <p class="balance">Saldo: <span id="coinBalance">0</span> moedas</p>
-        <button onclick="addTikTokLink()">Adicionar Link TikTok</button>
-        <button onclick="watchTikTokVideo()">Assistir Vídeo TikTok</button>
-    </div>
+    function switchToLogin() {
+      showPage('loginPage');
+    }
 
-    <!-- Tela do Administrador -->
-    <div class="container hidden" id="adminPage">
-        <h1>Administração</h1>
-        <div class="admin-container">
-            <h2>Usuários</h2>
-            <div id="userList"></div>
-            <h2>Links</h2>
-            <div id="linkList"></div>
-        </div>
-        <button onclick="logout()">Sair</button>
-    </div>
+    function showPage(pageId) {
+      document.querySelectorAll('.container').forEach(page => {
+        page.classList.remove('active');
+      });
+      document.getElementById(pageId).classList.add('active');
+    }
 
-    <!-- Botão de Deslogar (aparecendo quando o usuário estiver logado) -->
-    <button id="logoutButton" class="hidden" onclick="logout()">Deslogar</button>
+    function registerUser() {
+      const username = document.getElementById('registerUsername').value;
+      const password = document.getElementById('registerPassword').value;
 
-    <script>
-        const ADMIN_USERNAME = "Danilo";
-        const ADMIN_PASSWORD = "Danilo@123";
+      if (users.some(user => user.username === username)) {
+        alert('Usuário já registrado!');
+        return;
+      }
 
-        let users = JSON.parse(localStorage.getItem('users')) || {};
-        let links = JSON.parse(localStorage.getItem('links')) || [];
-        let currentUser = localStorage.getItem('currentUser') || null;
-        let followedProfiles = false; // Novo estado para controlar se os perfis foram seguidos
+      users.push({ username, password, balance: 0, watchedLinks: [] });
+      localStorage.setItem('users', JSON.stringify(users));
+      alert('Registro realizado com sucesso!');
+      switchToLogin();
+    }
 
-        function saveDataToStorage(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
-        }
+    function loginUser() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
 
-        function registerUser() {
-            const username = document.getElementById('registerUsername').value;
-            const password = document.getElementById('registerPassword').value;
-            if (username && password) {
-                users[username] = { password, coins: 0, watchedLinks: [] };
-                saveDataToStorage('users', users);
-                alert('Usuário cadastrado com sucesso!');
-                showFollowPage(); // Exibe a página de seguir após o registro
-            } else {
-                alert('Por favor, preencha todos os campos.');
-            }
-        }
+      const user = users.find(user => user.username === username && user.password === password);
 
-        function loginUser() {
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-            if (users[username] && users[username].password === password) {
-                currentUser = username;
-                localStorage.setItem('currentUser', currentUser);
-                showMainPage();
-            } else if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                currentUser = username;
-                localStorage.setItem('currentUser', currentUser);
-                alert('Login como administrador bem-sucedido!');
-                showAdminPage();
-            } else {
-                alert('Usuário ou senha incorretos.');
-            }
-        }
+      if (!user) {
+        alert('Usuário ou senha inválidos!');
+        return;
+      }
 
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            showLoginPage();
-        }
+      currentUser = user;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-        function showLoginPage() {
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
-            followedProfiles = false; // Reseta o estado ao voltar para o login
-        }
+      if (username === 'admin') {
+        showPage('adminPage');
+        loadAdminData();
+      } else {
+        showPage('mainPage');
+        document.getElementById('usernameDisplay').textContent = username;
+        document.getElementById('userBalance').textContent = user.balance;
+        loadLinks();
+      }
+    }
 
-        function showRegisterPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.remove('hidden');
-        }
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('currentUser');
+      switchToLogin();
+    }
 
-        function showFollowPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('followPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.add('hidden');
-        }
+    function addTikTokLink() {
+      const link = prompt('Insira o link do vídeo TikTok:');
+      if (link) {
+        links.push(link);
+        localStorage.setItem('links', JSON.stringify(links));
+        alert('Link adicionado com sucesso!');
+        loadLinks();
+      }
+    }
 
-        function enterMainPage() {
-            if (followedProfiles) {
-                showMainPage();
-            } else {
-                alert('Você precisa seguir os dois perfis para entrar.');
-            }
-        }
+    function watchTikTokVideo() {
+      const notWatchedLinks = links.filter(link => !currentUser.watchedLinks.includes(link));
+      if (notWatchedLinks.length === 0) {
+        alert('Você já assistiu todos os vídeos!');
+        return;
+      }
 
-        function markAsFollowed() {
-            followedProfiles = true;
-            document.getElementById('followedButton').classList.remove('hidden');
-        }
+      const randomLink = notWatchedLinks[Math.floor(Math.random() * notWatchedLinks.length)];
+      currentUser.watchedLinks.push(randomLink);
+      currentUser.balance += 10;
+      localStorage.setItem('users', JSON.stringify(users));
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      document.getElementById('userBalance').textContent = currentUser.balance;
 
-        function showMainPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('followPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('adminPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.remove('hidden');
-            document.getElementById('currentUser').innerText = currentUser;
-            updateCoinBalance();
-        }
+      window.open(randomLink, '_blank');
+    }
 
-        function showAdminPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('followPage').classList.add('hidden');
-            document.getElementById('adminPage').classList.remove('hidden');
-            document.getElementById('logoutButton').classList.remove('hidden');
-            displayUserList();
-            displayLinkList();
-        }
+    function loadLinks() {
+      const linkList = document.getElementById('linkList');
+      linkList.innerHTML = links.map(link => `<li>${link}</li>`).join('');
+    }
 
-        function updateCoinBalance() {
-            if (currentUser) {
-                const userCoins = users[currentUser].coins || 0;
-                document.getElementById('coinBalance').innerText = userCoins;
-            }
-        }
+    function loadAdminData() {
+      const userList = document.getElementById('userList');
+      userList.innerHTML = users.map(user => `
+        <li>${user.username} - ${user.balance} moedas</li>
+      `).join('');
+    }
 
-        function addTikTokLink() {
-            const link = prompt('Insira o link do vídeo do TikTok:');
-            if (link) {
-                links.push({ link });
-                saveDataToStorage('links', links);
-                alert('Link adicionado com sucesso!');
-            }
-        }
-
-        function watchTikTokVideo() {
-            const availableLinks = links.filter(link => !users[currentUser].watchedLinks.includes(link.link));
-            if (availableLinks.length === 0) {
-                alert('Não há links disponíveis para assistir.');
-                return;
-            }
-
-            const randomLink = availableLinks[Math.floor(Math.random() * availableLinks.length)];
-            window.open(randomLink.link, '_blank');
-            alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
-            users[currentUser].coins += 10;
-            users[currentUser].watchedLinks.push(randomLink.link);
-            saveDataToStorage('users', users);
-            updateCoinBalance();
-        }
-
-        function displayUserList() {
-            const userList = document.getElementById('userList');
-            userList.innerHTML = '';
-            for (let user in users) {
-                const userDiv = document.createElement('div');
-                userDiv.className = 'list-item';
-                userDiv.innerHTML = `
-                    <span>${user} - Moedas: ${users[user].coins}</span>
-                    <button onclick="removeUser('${user}')">Excluir</button>
-                    <input type="number" min="0" placeholder="Alterar Moedas" onchange="changeUserCoins('${user}', this.value)">
-                `;
-                userList.appendChild(userDiv);
-            }
-        }
-
-        function displayLinkList() {
-            const linkList = document.getElementById('linkList');
-            linkList.innerHTML = '';
-            links.forEach(link => {
-                const linkDiv = document.createElement('div');
-                linkDiv.className = 'list-item';
-                linkDiv.innerHTML = `
-                    <span>${link.link}</span>
-                    <button onclick="removeLink('${link.link}')">Excluir</button>
-                `;
-                linkList.appendChild(linkDiv);
-            });
-        }
-
-        function removeUser(username) {
-            delete users[username];
-            saveDataToStorage('users', users);
-            displayUserList();
-            alert(`Usuário ${username} excluído com sucesso!`);
-        }
-
-        function removeLink(link) {
-            links = links.filter(l => l.link !== link);
-            saveDataToStorage('links', links);
-            displayLinkList();
-            alert(`Link ${link} excluído com sucesso!`);
-        }
-
-        function changeUserCoins(username, coins) {
-            if (coins) {
-                users[username].coins = parseInt(coins);
-                saveDataToStorage('users', users);
-                displayUserList();
-                alert(`Moedas de ${username} alteradas para ${coins}`);
-            }
-        }
-
-        // Inicializa a página
-        if (currentUser) {
-            showFollowPage();
-        } else {
-            showLoginPage();
-        }
-
-        // Marcar como seguido
-        document.querySelectorAll('.follow-container a button').forEach(button => {
-            button.addEventListener('click', markAsFollowed);
-        });
-
-    </script>
+    // Inicia na página de login ou mantém o estado atual
+    if (currentUser) {
+      if (currentUser.username === 'admin') {
+        showPage('adminPage');
+        loadAdminData();
+      } else {
+        showPage('mainPage');
+        document.getElementById('usernameDisplay').textContent = currentUser.username;
+        document.getElementById('userBalance').textContent = currentUser.balance;
+        loadLinks();
+      }
+    } else {
+      switchToLogin();
+    }
+  </script>
 </body>
 </html>
