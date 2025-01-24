@@ -1,189 +1,26 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema TikTok</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        /* Estilo Global */
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #f1f2f6;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Container principal */
-        .container {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.3s ease-in-out;
-        }
-
-        /* Título */
-        .container h1 {
-            font-size: 26px;
-            color: #2d3436;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        /* Inputs */
-        .container input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #dfe6e9;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .container input:focus {
-            outline: none;
-            border-color: #0984e3;
-            box-shadow: 0 0 10px rgba(116, 185, 255, 0.6);
-        }
-
-        /* Botões */
-        .container button {
-            width: 100%;
-            padding: 14px;
-            background: #0984e3;
-            color: #fff;
-            font-weight: 600;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
-
-        .container button:hover {
-            background: #74b9ff;
-            transform: translateY(-2px);
-        }
-
-        .container .link a {
-            color: #0984e3;
-            text-decoration: none;
-        }
-
-        .container .link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Tela Principal */
-        .balance {
-            font-size: 18px;
-            color: #2d3436;
-            margin: 10px 0;
-        }
-
-        .balance span {
-            font-weight: bold;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Estilo do botão de logout */
-        #logoutButton {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: #d63031;
-            color: white;
-            font-size: 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
-
-        #logoutButton:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        /* Estilo de Links e Admin */
-        .admin-container h2 {
-            margin-top: 30px;
-            font-size: 20px;
-            color: #2d3436;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            font-size: 14px;
-        }
-
-        .list-item button {
-            background: #e17055;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background 0.3s ease;
-        }
-
-        .list-item button:hover {
-            background: #d63031;
-        }
-
-        .list-item input {
-            width: 60px;
-            margin-left: 10px;
-            padding: 5px;
-            border: 1px solid #dfe6e9;
-            border-radius: 5px;
-            font-size: 12px;
-        }
-
-        .list-item input[type="text"] {
-            width: 100px;
-        }
-
-        /* Estilo da Tela de Seguir Perfis */
-        .follow-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .follow-container button {
-            background: #00b894;
-        }
-
-        .follow-container button:hover {
-            background: #00cec9;
-        }
-    </style>
 </head>
 <body>
+    <!-- Tela de Seguir Perfis -->
+    <div class="container hidden" id="followPage">
+        <h1>Para continuar, siga estes perfis</h1>
+        <div class="follow-container">
+            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
+                <button>Seguir @mentecuriosabia</button>
+            </a>
+            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
+                <button>Seguir @thamyresp06</button>
+            </a>
+            <button id="followedButton" class="hidden" onclick="enterMainPage()">Já segui</button>
+        </div>
+    </div>
+
     <!-- Tela de Registro -->
     <div class="container hidden" id="registerPage">
         <h1>Registrar</h1>
@@ -203,20 +40,6 @@
         <button onclick="loginUser()">Logar</button>
         <div class="link">
             <p>Não tem uma conta? <a href="#" onclick="showRegisterPage()">Cadastrar</a></p>
-        </div>
-    </div>
-
-    <!-- Tela de Seguir Perfis -->
-    <div class="container hidden" id="followPage">
-        <h1>Para continuar, siga estes perfis</h1>
-        <div class="follow-container">
-            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
-                <button>Seguir @mentecuriosabia</button>
-            </a>
-            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
-                <button>Seguir @thamyresp06</button>
-            </a>
-            <button id="followedButton" class="hidden" onclick="enterMainPage()">Já segui</button>
         </div>
     </div>
 
@@ -243,165 +66,209 @@
     <!-- Botão de Deslogar (aparecendo quando o usuário estiver logado) -->
     <button id="logoutButton" class="hidden" onclick="logout()">Deslogar</button>
 
-    <!-- Tela de Apresentação de Seguimento -->
-    <div class="container hidden" id="firstTimeFollowPage">
-        <h1>Para continuar, siga estes perfis</h1>
-        <div class="follow-container">
-            <a href="https://www.tiktok.com/@mentecuriosabia?_t=ZM-8tKvX9q0CGL&_r=1" target="_blank">
-                <button>Seguir @mentecuriosabia</button>
-            </a>
-            <a href="https://www.tiktok.com/@thamyresp06?_t=ZM-8tAVH9k5Gh3&_r=1" target="_blank">
-                <button>Seguir @thamyresp06</button>
-            </a>
-            <button id="followedButton" onclick="enterMainPage()">Já segui</button>
-        </div>
-    </div>
-
     <script>
-        let currentUser = null;
+        const ADMIN_USERNAME = "Danilo";
+        const ADMIN_PASSWORD = "Danilo@123";
 
-        // Função para exibir a página de registro
-        function showRegisterPage() {
-            document.getElementById('registerPage').classList.remove('hidden');
-            document.getElementById('loginPage').classList.add('hidden');
+        let users = JSON.parse(localStorage.getItem('users')) || {};
+        let links = JSON.parse(localStorage.getItem('links')) || [];
+        let currentUser = localStorage.getItem('currentUser') || null;
+        let followedProfiles = false; // Novo estado para controlar se os perfis foram seguidos
+
+        function saveDataToStorage(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
         }
 
-        // Função para exibir a página de login
-        function showLoginPage() {
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-        }
-
-        // Função para exibir a página principal
-        function enterMainPage() {
-            document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('followPage').classList.add('hidden');
-            document.getElementById('firstTimeFollowPage').classList.add('hidden');
-            document.getElementById('logoutButton').classList.remove('hidden');
-            updateCoinBalance();
-            updateUserList();
-        }
-
-        // Função para registrar um novo usuário
         function registerUser() {
             const username = document.getElementById('registerUsername').value;
             const password = document.getElementById('registerPassword').value;
-
             if (username && password) {
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                const userExists = users.find(user => user.username === username);
-
-                if (!userExists) {
-                    users.push({ username, password, coins: 0 });
-                    localStorage.setItem('users', JSON.stringify(users));
-                    currentUser = username;
-                    alert('Registro realizado com sucesso!');
-
-                    // Verificar se é um novo usuário
-                    if (users.length === 1) {
-                        // Se for o primeiro usuário, redireciona para a tela de seguir perfis
-                        document.getElementById('firstTimeFollowPage').classList.remove('hidden');
-                        document.getElementById('mainPage').classList.add('hidden');
-                    } else {
-                        enterMainPage();
-                    }
-                } else {
-                    alert('Usuário já existe!');
-                }
+                users[username] = { password, coins: 0, watchedLinks: [] };
+                saveDataToStorage('users', users);
+                alert('Usuário cadastrado com sucesso!');
+                showFollowPage(); // Exibe a página de seguir após o registro
             } else {
-                alert('Preencha todos os campos!');
+                alert('Por favor, preencha todos os campos.');
             }
         }
 
-        // Função para fazer login
         function loginUser() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-
-            const user = users.find(user => user.username === username && user.password === password);
-            if (user) {
+            if (users[username] && users[username].password === password) {
                 currentUser = username;
-                alert('Login realizado com sucesso!');
-                document.getElementById('currentUser').textContent = currentUser;
-                enterMainPage();
+                localStorage.setItem('currentUser', currentUser);
+                showMainPage();
+            } else if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                currentUser = username;
+                localStorage.setItem('currentUser', currentUser);
+                alert('Login como administrador bem-sucedido!');
+                showAdminPage();
             } else {
-                alert('Usuário ou senha incorretos!');
+                alert('Usuário ou senha incorretos.');
             }
         }
 
-        // Função para adicionar um link TikTok
-        function addTikTokLink() {
-            const link = prompt('Digite o link do TikTok:');
-            if (link) {
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                const userIndex = users.findIndex(user => user.username === currentUser);
-                if (userIndex !== -1) {
-                    users[userIndex].links = users[userIndex].links || [];
-                    users[userIndex].links.push(link);
-                    localStorage.setItem('users', JSON.stringify(users));
-                    alert('Link adicionado com sucesso!');
-                }
-            }
-        }
-
-        // Função para assistir um vídeo TikTok
-        function watchTikTokVideo() {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(user => user.username === currentUser);
-            if (user && user.links && user.links.length > 0) {
-                const randomIndex = Math.floor(Math.random() * user.links.length);
-                window.open(user.links[randomIndex], '_blank');
-            } else {
-                alert('Nenhum link disponível!');
-            }
-        }
-
-        // Função para atualizar o saldo de moedas
-        function updateCoinBalance() {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(user => user.username === currentUser);
-            if (user) {
-                document.getElementById('coinBalance').textContent = user.coins;
-            }
-        }
-
-        // Função para atualizar a lista de usuários
-        function updateUserList() {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const userListDiv = document.getElementById('userList');
-            userListDiv.innerHTML = '';
-            users.forEach(user => {
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `${user.username} <button onclick="deleteUser('${user.username}')">Excluir</button>`;
-                userListDiv.appendChild(div);
-            });
-        }
-
-        // Função para deletar um usuário
-        function deleteUser(username) {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const updatedUsers = users.filter(user => user.username !== username);
-            localStorage.setItem('users', JSON.stringify(updatedUsers));
-            alert('Usuário excluído com sucesso!');
-            updateUserList();
-        }
-
-        // Função para deslogar
         function logout() {
             currentUser = null;
-            document.getElementById('mainPage').classList.add('hidden');
+            localStorage.removeItem('currentUser');
+            showLoginPage();
+        }
+
+        function showLoginPage() {
+            document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('logoutButton').classList.add('hidden');
+            followedProfiles = false; // Reseta o estado ao voltar para o login
+        }
+
+        function showRegisterPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+        }
+
+        function showFollowPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followPage').classList.remove('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
             document.getElementById('logoutButton').classList.add('hidden');
         }
 
-        // Função chamada quando o usuário clica em "Já segui"
-        document.getElementById('followedButton').onclick = function() {
-            document.getElementById('firstTimeFollowPage').classList.add('hidden');
-            enterMainPage();
+        function enterMainPage() {
+            if (followedProfiles) {
+                showMainPage();
+            } else {
+                alert('Você precisa seguir os dois perfis para entrar.');
+            }
         }
+
+        function markAsFollowed() {
+            followedProfiles = true;
+            document.getElementById('followedButton').classList.remove('hidden');
+        }
+
+        function showMainPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+            document.getElementById('logoutButton').classList.remove('hidden');
+            document.getElementById('currentUser').innerText = currentUser;
+            updateCoinBalance();
+        }
+
+        function showAdminPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('followPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.remove('hidden');
+            document.getElementById('logoutButton').classList.remove('hidden');
+            displayUserList();
+            displayLinkList();
+        }
+
+        function updateCoinBalance() {
+            if (currentUser) {
+                const userCoins = users[currentUser].coins || 0;
+                document.getElementById('coinBalance').innerText = userCoins;
+            }
+        }
+
+        function addTikTokLink() {
+            const link = prompt('Insira o link do vídeo do TikTok:');
+            if (link) {
+                links.push({ link });
+                saveDataToStorage('links', links);
+                alert('Link adicionado com sucesso!');
+            }
+        }
+
+        function watchTikTokVideo() {
+            const availableLinks = links.filter(link => !users[currentUser].watchedLinks.includes(link.link));
+            if (availableLinks.length === 0) {
+                alert('Não há links disponíveis para assistir.');
+                return;
+            }
+
+            const randomLink = availableLinks[Math.floor(Math.random() * availableLinks.length)];
+            window.open(randomLink.link, '_blank');
+            alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
+            users[currentUser].coins += 10;
+            users[currentUser].watchedLinks.push(randomLink.link);
+            saveDataToStorage('users', users);
+            updateCoinBalance();
+        }
+
+        function displayUserList() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            for (let user in users) {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'list-item';
+                userDiv.innerHTML = `
+                    <span>${user} - Moedas: ${users[user].coins}</span>
+                    <button onclick="removeUser('${user}')">Excluir</button>
+                    <input type="number" min="0" placeholder="Alterar Moedas" onchange="changeUserCoins('${user}', this.value)">
+                `;
+                userList.appendChild(userDiv);
+            }
+        }
+
+        function displayLinkList() {
+            const linkList = document.getElementById('linkList');
+            linkList.innerHTML = '';
+            links.forEach(link => {
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'list-item';
+                linkDiv.innerHTML = `
+                    <span>${link.link}</span>
+                    <button onclick="removeLink('${link.link}')">Excluir</button>
+                `;
+                linkList.appendChild(linkDiv);
+            });
+        }
+
+        function removeUser(username) {
+            delete users[username];
+            saveDataToStorage('users', users);
+            displayUserList();
+            alert(`Usuário ${username} excluído com sucesso!`);
+        }
+
+        function removeLink(link) {
+            links = links.filter(l => l.link !== link);
+            saveDataToStorage('links', links);
+            displayLinkList();
+            alert(`Link ${link} excluído com sucesso!`);
+        }
+
+        function changeUserCoins(username, coins) {
+            if (coins) {
+                users[username].coins = parseInt(coins);
+                saveDataToStorage('users', users);
+                displayUserList();
+                alert(`Moedas de ${username} alteradas para ${coins}`);
+            }
+        }
+
+        // Inicializa a página
+        if (currentUser) {
+            showFollowPage();
+        } else {
+            showLoginPage();
+        }
+
+        // Marcar como seguido
+        document.querySelectorAll('.follow-container a button').forEach(button => {
+            button.addEventListener('click', markAsFollowed);
+        });
+
     </script>
 </body>
-                </html>
-                
+</html>
