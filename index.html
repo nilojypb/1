@@ -153,6 +153,17 @@
         .list-item button:hover {
             background: #d63031;
         }
+
+        /* Estilo do campo para alterar moedas */
+        .change-coins {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .change-coins input {
+            width: 70%;
+        }
     </style>
 </head>
 <body>
@@ -191,13 +202,14 @@
         <h1>Administração</h1>
         <div class="admin-container">
             <h2>Usuários</h2>
-            <div id="userList">
-                <!-- Lista de usuários gerada dinamicamente pelo JavaScript -->
-            </div>
+            <div id="userList"></div>
             <h2>Links</h2>
-            <div id="linkList">
-                <!-- Lista de links gerada dinamicamente pelo JavaScript -->
-            </div>
+            <div id="linkList"></div>
+        </div>
+        <div class="change-coins">
+            <input type="text" id="usernameToChange" placeholder="Usuário">
+            <input type="number" id="coinsToChange" placeholder="Quantidade de moedas">
+            <button onclick="changeUserCoins()">Alterar Moedas</button>
         </div>
         <button onclick="logout()">Sair</button>
     </div>
@@ -254,52 +266,71 @@
             if (users[currentUser].coins >= 50) {
                 const link = prompt("Insira o link do TikTok:");
                 if (link) {
-                    links.push({ link, allowedUsers: Object.keys(users) });
-                    users[currentUser].coins -= 50;
-                    saveDataToStorage('users', users);
+                    links.push(link);
+                    users[currentUser].coins -= 50; // Custa 50 moedas para adicionar um link
                     saveDataToStorage('links', links);
-                    alert("Link adicionado com sucesso!");
-                } else {
-                    alert("Nenhum link foi adicionado.");
+                    saveDataToStorage('users', users);
+                    alert('Link adicionado com sucesso! 50 moedas foram descontadas.');
+                    updateCoinBalance();
                 }
             } else {
-                alert("Você não tem moedas suficientes.");
+                alert('Você não tem moedas suficientes.');
             }
         }
 
         function watchTikTokVideo() {
             if (links.length > 0) {
-                const link = links[Math.floor(Math.random() * links.length)].link;
-                window.open(link, '_blank');
+                const randomLink = links[Math.floor(Math.random() * links.length)];
+                alert(`Assistindo vídeo: ${randomLink}`);
+                users[currentUser].coins += 10; // Adiciona 10 moedas ao saldo
+                saveDataToStorage('users', users);
+                updateCoinBalance();
             } else {
-                alert("Nenhum link disponível.");
+                alert('Não há links disponíveis.');
             }
         }
 
+        function updateCoinBalance() {
+            document.getElementById('coinBalance').textContent = users[currentUser].coins;
+        }
+
         function showLoginPage() {
-            document.getElementById('registerPage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
         }
 
         function showRegisterPage() {
-            document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('registerPage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
         }
 
         function showMainPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('registerPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.remove('hidden');
             document.getElementById('currentUser').textContent = currentUser;
-            document.getElementById('coinBalance').textContent = users[currentUser].coins;
+            updateCoinBalance();
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('logoutButton').classList.remove('hidden');
         }
 
         function showAdminPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('userList').innerHTML = Object.keys(users).map(user => `<div class="list-item">${user} - ${users[user].coins} moedas</div>`).join('');
+            document.getElementById('linkList').innerHTML = links.map(link => `<div class="list-item">${link}</div>`).join('');
             document.getElementById('adminPage').classList.remove('hidden');
-            renderAdminData();
+            document.getElementById('loginPage').classList.add('hidden');
+        }
+
+        function changeUserCoins() {
+            const username = document.getElementById('usernameToChange').value;
+            const coins = parseInt(document.getElementById('coinsToChange').value, 10);
+
+            if (users[username] && !isNaN(coins)) {
+                users[username].coins += coins;
+                saveDataToStorage('users', users);
+                alert(`Moedas alteradas para ${username}.`);
+                showAdminPage();
+            } else {
+                alert('Usuário não encontrado ou valor inválido.');
+            }
         }
 
         function logout() {
@@ -310,77 +341,6 @@
             document.getElementById('loginPage').classList.remove('hidden');
             document.getElementById('logoutButton').classList.add('hidden');
         }
-
-        // Renderizar dados dos usuários e permitir edição
-        function renderAdminData() {
-            const userList = document.getElementById('userList');
-            userList.innerHTML = ""; // Limpar lista
-
-            Object.keys(users).forEach(username => {
-                const user = users[username];
-                const div = document.createElement('div');
-                div.className = "list-item";
-
-                div.innerHTML = `
-                    <span><strong>Usuário:</strong> ${username} | 
-                    <strong>Senha:</strong> ${user.password} | 
-                    <strong>Moedas:</strong> <span id="coins-${username}">${user.coins}</span></span>
-                    <button onclick="editUserCoins('${username}')">Editar Moedas</button>
-                    <button onclick="deleteUser('${username}')">Excluir</button>
-                `;
-
-                userList.appendChild(div);
-            });
-
-            const linkList = document.getElementById('linkList');
-            linkList.innerHTML = ""; // Limpar lista
-
-            links.forEach((link, index) => {
-                const div = document.createElement('div');
-                div.className = "list-item";
-
-                div.innerHTML = `
-                    <span>${link.link}</span>
-                    <button onclick="deleteLink(${index})">Excluir</button>
-                `;
-
-                linkList.appendChild(div);
-            });
-        }
-
-        // Função para editar moedas de usuários
-        function editUserCoins(username) {
-            const currentCoins = users[username].coins;
-            const newCoins = prompt(`Saldo atual: ${currentCoins}. Insira o novo saldo para ${username}:`);
-
-            if (newCoins !== null && !isNaN(newCoins) && newCoins >= 0) {
-                users[username].coins = parseInt(newCoins);
-                saveDataToStorage('users', users);
-                alert(`Saldo atualizado para ${username}: ${newCoins} moedas.`);
-                renderAdminData();
-            } else {
-                alert("Valor inválido. Tente novamente.");
-            }
-        }
-
-        // Função para excluir usuário
-        function deleteUser(username) {
-            delete users[username];
-            saveDataToStorage('users', users);
-            renderAdminData();
-            alert(`Usuário ${username} excluído com sucesso.`);
-        }
-
-        // Função para excluir link
-        function deleteLink(index) {
-            links.splice(index, 1);
-            saveDataToStorage('links', links);
-            renderAdminData();
-            alert("Link excluído com sucesso.");
-        }
-
-        // Exibir tela de login inicialmente
-        showLoginPage();
     </script>
 </body>
 </html>
