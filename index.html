@@ -221,7 +221,8 @@
                 if (users[username]) {
                     alert('Usuário já registrado!');
                 } else {
-                    users[username] = { password, coins: 50 };
+                    // Adiciona a propriedade watchedLinks ao novo usuário
+                    users[username] = { password, coins: 50, watchedLinks: [] };
                     saveDataToStorage('users', users);
                     alert('Usuário registrado com sucesso!');
                     showLoginPage();
@@ -307,13 +308,14 @@
 
         function watchTikTokVideo() {
             // Verifica se existem links disponíveis
-            if (links.length === 0) {
+            const availableLinks = links.filter(link => !users[currentUser].watchedLinks.includes(link.link));
+            if (availableLinks.length === 0) {
                 alert('Não há links disponíveis para assistir.');
                 return; // Sai da função se não houver links
             }
 
             // Seleciona um link aleatório
-            const randomLink = links[Math.floor(Math.random() * links.length)];
+            const randomLink = availableLinks[Math.floor(Math.random() * availableLinks.length)];
             
             // Redireciona para o link do TikTok
             window.open(randomLink.link, '_blank');
@@ -321,6 +323,7 @@
             // Exibe a mensagem após retornar
             alert(`Você assistiu ao vídeo e ganhou 10 moedas!`);
             users[currentUser].coins += 10; // Adiciona 10 moedas ao saldo
+            users[currentUser].watchedLinks.push(randomLink.link); // Adiciona o link aos assistidos
             saveDataToStorage('users', users);
             updateCoinBalance();
         }
