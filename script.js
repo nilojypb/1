@@ -42,13 +42,3 @@ button {
 button:hover {
   background-color: #4caf50;
 }
-.balance, .admin-section, .links {
-  margin: 20px 0;
-}
-.links {
-  max-height: 150px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-    }
-  
