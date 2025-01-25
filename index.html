@@ -4,49 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema TikTok</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Tela de Registro -->
-  <div id="registerPage" class="container active">
-    <h2>Registrar</h2>
-    <input id="registerUsername" type="text" placeholder="Usuário">
-    <input id="registerPassword" type="password" placeholder="Senha">
-    <button onclick="registerUser()">Registrar</button>
-    <button onclick="switchToLogin()">Já tenho uma conta</button>
-  </div>
-
-  <!-- Tela de Login -->
-  <div id="loginPage" class="container">
-    <h2>Login</h2>
-    <input id="loginUsername" type="text" placeholder="Usuário">
-    <input id="loginPassword" type="password" placeholder="Senha">
-    <button onclick="loginUser()">Login</button>
-  </div>
-
-  <!-- Tela Principal -->
-  <div id="mainPage" class="container">
-    <h2>Bem-vindo, <span id="usernameDisplay"></span></h2>
-    <div class="balance">Saldo: <span id="userBalance">0</span> moedas</div>
-    <button onclick="addTikTokLink()">Adicionar Link TikTok</button>
-    <button onclick="watchTikTokVideo()">Assistir Vídeo TikTok</button>
-    <div class="links">
-      <h4>Links Adicionados:</h4>
-      <ul id="linkList"></ul>
-    </div>
-    <button onclick="logout()">Sair</button>
-  </div>
-
-  <!-- Tela de Administração -->
-  <div id="adminPage" class="container">
-    <h2>Administração</h2>
-    <div class="admin-section">
-      <h4>Gerenciar Usuários</h4>
-      <ul id="userList"></ul>
-    </div>
-    <button onclick="logout()">Sair</button>
-  </div>
-
-  <script src="script.js"></script>
+  <div id="app"></div>
+  <script src="js/main.js"></script>
 </body>
 </html>
